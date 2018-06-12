@@ -1,0 +1,33 @@
+<!--header.html-->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Видео</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
+    <link rel="stylesheet" href="static/css/foundation.css">
+    <link rel="stylesheet" href="static/css/app.css">
+</head>
+
+<body>
+    <div class="grid-container">
+        <div class="grid-x grid-padding-x align-middle">
+            <div class="cell large-4 medium-4 hide-for-small-only">
+                <a href="/">
+                    <img src="static/img/head.png" alt="title">
+                </a>
+            </div>
+            <div class="cell small-12 medium-8 large-8 text-center">
+                <h1>
+                    <strong>
+                        <em>Моё маленькое хобби</em>
+                    </strong>
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <!--Embed the menu.html template at this location-->
+    {{ template "menu.html" . }}
