@@ -79,24 +79,24 @@ func main() {
 
 	var mi menuItems
 	var m menu
-	rows, err := db.Query("SELECT * FROM menu WHERE subMenuID = 0 and enable != 0")
+
+	//selMainMenu, err := db.Query("SELECT * FROM menu WHERE subMenuID = 0 and enable != 0")
+	//checkErr(err)
+	selMenu, err := db.Prepare("SELECT * FROM menu WHERE subMenuID = ? and enable != 0")
 	checkErr(err)
-	for rows.Next() {
-		err = rows.Scan(&mi.ID, &mi.Serial, &mi.Name, &mi.SubMenuID, &mi.weight, &mi.enable)
+	defer selMenu.Close()
+
+	mMenuItems, err := selMenu.Query(0)
+	checkErr(err)
+
+	for mMenuItems.Next() {
+		err = mMenuItems.Scan(&mi.ID, &mi.Serial, &mi.Name, &mi.SubMenuID, &mi.weight, &mi.enable)
 		fmt.Println(mi.Name, mi.enable)
 		m.items = append(m.items, mi)
 	}
-	for i := 0; i < len(m.items); i++ {
-
-		res, err := sq.Exec(i)
-		checkErr(err)
-		fmt.Println(res)
-	}
 
 	/*
-		var s Pages
-		json.Unmarshal(byteValue, &s)
-		fmt.Println(s.Pages[1].Title)
+
 		router = gin.Default()
 		router.Static("/static", "./static")
 		router.LoadHTMLGlob("templates/*")
