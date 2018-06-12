@@ -10,38 +10,19 @@
     <div class="top-bar-left">
       <ul class="dropdown menu" data-dropdown-menu="">
         <!--li class="menu-text">Site Title</li-->
-        {{ $menuItems := .menuItems }}
-        {{ range $mainMenu := $menuItems }}
-          {{ $isSub := 1 }}
+        {{ range .menuItems }}
+        <li>
+          <a href="#">{{ .MainMenuItems.Name }}</a>
+          {{ if .SubMenuItems }}
+          <ul class="menu vertical">
+            {{ range .SubMenuItems}}
             <li>
-              <a href="#">{{ $mainMenu.Name }}</a>
-              {{ if eq $mainMenu.SubMenuID 0 }}
-  
-                {{ range $subMenu := $menuItems }}
-                {{ $menuItems }}  
-                  {{ if eq $mainMenu.Serial $subMenu.SubMenuID }}
-
-                    {{ if eq $isSub 1 }}
-                      <ul class="menu vertical">
-                        Привет {{ $mainMenu.Serial }}
-                      {{ $isSub := 0 }}
-                    {{ end }}
-                  
-                    <li>
-                      <a href="">{{ $subMenu.Name }}</a>
-                    </li>
-                  {{ end }}
-
-                {{ end }}
-                
-                {{ if eq $isSub 0 }}
-                    </ul>
-                    {{ $isSub := 1 }}
-                    {{ $isSub }}
-                {{end }}
+              <a href="">{{ .Name }}</a>
             </li>
-              {{ end }}
-        {{ end }}
+            {{ end }}
+          </ul>
+          {{ end }} {{ end }}
+        </li>
       </ul>
     </div>
   </div>

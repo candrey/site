@@ -9,33 +9,16 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-/*
-//Site is a...
-type Pages struct {
-	Pages []Page `json:"pages"`
-}
-
-//Page is a...
-type Page struct {
-	ID          uint     `json:"id"`
-	Title       string   `json:"title"`
-	SubMenuID   uint     `json:"subMenuID"`
-	Urls        []string `json:"urls"`
-	Description string   `json:"description"`
-}
-*/
 type menu struct {
 	items []menuItems
 }
 
-/*
-type menuItem struct {
-	mainMenuItems menuItems
-	subMenuItems  []menuItems
-}
-*/
-
 type menuItems struct {
+	MainMenuItems menuItem
+	SubMenuItems  []menuItem
+}
+
+type menuItem struct {
 	ID        uint
 	Serial    uint
 	Name      string
@@ -45,8 +28,6 @@ type menuItems struct {
 }
 
 var router *gin.Engine
-
-//var mjson = `{"name": "Прогулки по Москве", "subMenu": ["от Марксисткой", "от Третьяковской", "от Тверской"], "name": "Обзор книг", "subMenu":[], "name": "Handmade", "subMenu":[]}`
 
 func initializeRoutes(mItems []menuItems) {
 
@@ -63,39 +44,48 @@ func checkErr(err error) {
 	}
 }
 
+func parsSubMenu(selMenu *sql.Stmt, primMenuID uint) []menuItem {
+	var subMenuItem menuItem
+	var subMenu []menuItem
+
+	subMenuItems, err := selMenu.Query(primMenuID)
+	checkErr(err)
+
+	for subMenuItems.Next() {
+		err = subMenuItems.Scan(&subMenuItem.ID, &subMenuItem.Serial, &subMenuItem.Name, &subMenuItem.SubMenuID, &subMenuItem.Weight, &subMenuItem.Enable)
+		subMenu = append(subMenu, subMenuItem)
+	}
+
+	return subMenu
+}
+
 func main() {
 
 	db, err := sql.Open("sqlite3", "./site.db")
 	checkErr(err)
 	defer db.Close()
 
-	var mis menuItems
-	//var mi menuItem
+	var primMenuItem menuItem
+	var mItems menuItems
 	var m menu
 
-	selMenu, err := db.Query("SELECT * FROM menu WHERE enable != 0 ORDER BY weight")
+	selMenu, err := db.Prepare("SELECT * FROM menu WHERE subMenuID = ? and enable != 0 ORDER BY weight")
 	checkErr(err)
-	//defer selMenu.Close()
-	//var subMenuItems
-	//mMenuItems, err := selMenu.Query(0)
-	//checkErr(err)
+	defer selMenu.Close()
 
-	for selMenu.Next() {
-		err = selMenu.Scan(&mis.ID, &mis.Serial, &mis.Name, &mis.SubMenuID, &mis.Weight, &mis.Enable)
-		//fmt.Println(mi.Name, mi.enable)
+	primMenuItems, err := selMenu.Query(0)
+	checkErr(err)
 
-		//		subMenuItems, err := selMenu.Query(&mis.ID)
-		//		checkErr(err)
+	for primMenuItems.Next() {
+		err = primMenuItems.Scan(&primMenuItem.ID, &primMenuItem.Serial, &primMenuItem.Name, &primMenuItem.SubMenuID, &primMenuItem.Weight, &primMenuItem.Enable)
 
-		//		for subMenuItems.Next() {
-		//			err = subMenuItems.Scan(&mis.ID, &mis.Serial, &mis.Name, &mis.SubMenuID, &mis.weight, &mis.enable)
-		//			//fmt.Println(mi.Name, mi.enable)
-		//			mi.subMenu = append(mi.subMenu, mis)
-		//		}
+		mItems.MainMenuItems = primMenuItem
+		mItems.SubMenuItems = parsSubMenu(selMenu, primMenuItem.Serial)
 
-		m.items = append(m.items, mis)
+		m.items = append(m.items, mItems)
 	}
-	//fmt.Println(m)
+
+	//fmt.Println(m.items)
 
 	router = gin.Default()
 	router.Static("/static", "./static")
