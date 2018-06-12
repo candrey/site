@@ -23,6 +23,7 @@ type menuItem struct {
 	Serial    uint
 	Name      string
 	SubMenuID uint
+	Href      string
 	Weight    uint
 	Enable    bool
 }
@@ -52,7 +53,7 @@ func parsSubMenu(selMenu *sql.Stmt, primMenuID uint) []menuItem {
 	checkErr(err)
 
 	for subMenuItems.Next() {
-		err = subMenuItems.Scan(&subMenuItem.ID, &subMenuItem.Serial, &subMenuItem.Name, &subMenuItem.SubMenuID, &subMenuItem.Weight, &subMenuItem.Enable)
+		err = subMenuItems.Scan(&subMenuItem.ID, &subMenuItem.Serial, &subMenuItem.Name, &subMenuItem.SubMenuID, &subMenuItem.Href, &subMenuItem.Weight, &subMenuItem.Enable)
 		subMenu = append(subMenu, subMenuItem)
 	}
 
@@ -77,15 +78,13 @@ func main() {
 	checkErr(err)
 
 	for primMenuItems.Next() {
-		err = primMenuItems.Scan(&primMenuItem.ID, &primMenuItem.Serial, &primMenuItem.Name, &primMenuItem.SubMenuID, &primMenuItem.Weight, &primMenuItem.Enable)
+		err = primMenuItems.Scan(&primMenuItem.ID, &primMenuItem.Serial, &primMenuItem.Name, &primMenuItem.SubMenuID, &primMenuItem.Href, &primMenuItem.Weight, &primMenuItem.Enable)
 
 		mItems.MainMenuItems = primMenuItem
 		mItems.SubMenuItems = parsSubMenu(selMenu, primMenuItem.Serial)
 
 		m.items = append(m.items, mItems)
 	}
-
-	//fmt.Println(m.items)
 
 	router = gin.Default()
 	router.Static("/static", "./static")

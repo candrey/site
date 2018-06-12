@@ -12,12 +12,12 @@
         <!--li class="menu-text">Site Title</li-->
         {{ range .menuItems }}
         <li>
-          <a href="#">{{ .MainMenuItems.Name }}</a>
+          <a href="{{ .MainMenuItems.Href }}">{{ .MainMenuItems.Name }}</a>
           {{ if .SubMenuItems }}
           <ul class="menu vertical">
             {{ range .SubMenuItems}}
             <li>
-              <a href="">{{ .Name }}</a>
+              <a href="{{ .Href }}">{{ .Name }}</a>
             </li>
             {{ end }}
           </ul>
