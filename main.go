@@ -87,8 +87,6 @@ func main() {
 		m.items = append(m.items, mi)
 	}
 	for i := 0; i < len(m.items); i++ {
-		sq, err := db.Prepare("SELECT * FROM menu WHERE subMenuID = ? and enable != 0")
-		checkErr(err)
 
 		res, err := sq.Exec(i)
 		checkErr(err)
