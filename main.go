@@ -2,13 +2,9 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	//	"encoding/json"
 
-	//	"net/http"
-
-	//	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -32,24 +28,31 @@ type menu struct {
 	items []menuItems
 }
 
+/*
+type menuItem struct {
+	mainMenuItems menuItems
+	subMenuItems  []menuItems
+}
+*/
+
 type menuItems struct {
 	ID        uint
 	Serial    uint
 	Name      string
 	SubMenuID uint
-	weight    uint
-	enable    bool
+	Weight    uint
+	Enable    bool
 }
 
 var router *gin.Engine
 
 //var mjson = `{"name": "Прогулки по Москве", "subMenu": ["от Марксисткой", "от Третьяковской", "от Тверской"], "name": "Обзор книг", "subMenu":[], "name": "Handmade", "subMenu":[]}`
 
-func initializeRoutes() {
+func initializeRoutes(mItems []menuItems) {
 
 	router.GET("/", func(c *gin.Context) {
 		c.HTML(
-			http.StatusOK, "index.html", gin.H{"title": "Home Page"},
+			http.StatusOK, "index.html", gin.H{"title": "Home Page", "menuItems": mItems},
 		)
 	})
 }
@@ -61,46 +64,44 @@ func checkErr(err error) {
 }
 
 func main() {
-	/*
-		// Open our jsonFile
-		jsonFile, err := os.Open("site.json")
-		// if we os.Open returns an error then handle it
-		if err != nil {
-			fmt.Println(err)
-		}
-		fmt.Println("Successfully Opened site.json")
-		// defer the closing of our jsonFile so that we can parse it later on
-		defer jsonFile.Close()
-		byteValue, _ := ioutil.ReadAll(jsonFile)
-	*/
+
 	db, err := sql.Open("sqlite3", "./site.db")
 	checkErr(err)
 	defer db.Close()
 
-	var mi menuItems
+	var mis menuItems
+	//var mi menuItem
 	var m menu
 
-	//selMainMenu, err := db.Query("SELECT * FROM menu WHERE subMenuID = 0 and enable != 0")
+	selMenu, err := db.Query("SELECT * FROM menu WHERE enable != 0 ORDER BY weight")
+	checkErr(err)
+	//defer selMenu.Close()
+	//var subMenuItems
+	//mMenuItems, err := selMenu.Query(0)
 	//checkErr(err)
-	selMenu, err := db.Prepare("SELECT * FROM menu WHERE subMenuID = ? and enable != 0")
-	checkErr(err)
-	defer selMenu.Close()
 
-	mMenuItems, err := selMenu.Query(0)
-	checkErr(err)
+	for selMenu.Next() {
+		err = selMenu.Scan(&mis.ID, &mis.Serial, &mis.Name, &mis.SubMenuID, &mis.Weight, &mis.Enable)
+		//fmt.Println(mi.Name, mi.enable)
 
-	for mMenuItems.Next() {
-		err = mMenuItems.Scan(&mi.ID, &mi.Serial, &mi.Name, &mi.SubMenuID, &mi.weight, &mi.enable)
-		fmt.Println(mi.Name, mi.enable)
-		m.items = append(m.items, mi)
+		//		subMenuItems, err := selMenu.Query(&mis.ID)
+		//		checkErr(err)
+
+		//		for subMenuItems.Next() {
+		//			err = subMenuItems.Scan(&mis.ID, &mis.Serial, &mis.Name, &mis.SubMenuID, &mis.weight, &mis.enable)
+		//			//fmt.Println(mi.Name, mi.enable)
+		//			mi.subMenu = append(mi.subMenu, mis)
+		//		}
+
+		m.items = append(m.items, mis)
 	}
+	//fmt.Println(m)
 
-	/*
+	router = gin.Default()
+	router.Static("/static", "./static")
+	router.LoadHTMLGlob("templates/*")
 
-		router = gin.Default()
-		router.Static("/static", "./static")
-		router.LoadHTMLGlob("templates/*")
+	initializeRoutes(m.items)
+	router.Run()
 
-		initializeRoutes()
-		router.Run()*/
 }

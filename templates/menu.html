@@ -10,28 +10,38 @@
     <div class="top-bar-left">
       <ul class="dropdown menu" data-dropdown-menu="">
         <!--li class="menu-text">Site Title</li-->
-        <li>
-          <a href="#">Прогулки по Москве</a>
-          <ul class="menu vertical">
+        {{ $menuItems := .menuItems }}
+        {{ range $mainMenu := $menuItems }}
+          {{ $isSub := 1 }}
             <li>
-              <a href="/rimskaya.html">Пешком от Марксисткой</a>
+              <a href="#">{{ $mainMenu.Name }}</a>
+              {{ if eq $mainMenu.SubMenuID 0 }}
+  
+                {{ range $subMenu := $menuItems }}
+                {{ $menuItems }}  
+                  {{ if eq $mainMenu.Serial $subMenu.SubMenuID }}
+
+                    {{ if eq $isSub 1 }}
+                      <ul class="menu vertical">
+                        Привет {{ $mainMenu.Serial }}
+                      {{ $isSub := 0 }}
+                    {{ end }}
+                  
+                    <li>
+                      <a href="">{{ $subMenu.Name }}</a>
+                    </li>
+                  {{ end }}
+
+                {{ end }}
+                
+                {{ if eq $isSub 0 }}
+                    </ul>
+                    {{ $isSub := 1 }}
+                    {{ $isSub }}
+                {{end }}
             </li>
-            <li>
-              <a href="/tretyakovskaya.html">Пешком от Третьяковской
-              </a>
-            </li>
-            <li>
-              <a href="/patriarshie.html">Пешком до Патириарших
-              </a>
-            </li>
-          </ul>
-        </li>
-        <li>
-          <a href="/books.html">Обзор книг</a>
-        </li>
-        <li>
-          <a href="/handmade.html">Handmade</a>
-        </li>
+              {{ end }}
+        {{ end }}
       </ul>
     </div>
   </div>
