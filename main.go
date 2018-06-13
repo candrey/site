@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"net/http"
-	//	"encoding/json"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/mattn/go-sqlite3"
@@ -53,7 +52,9 @@ func parsSubMenu(selMenu *sql.Stmt, primMenuID uint) []menuItem {
 	checkErr(err)
 
 	for subMenuItems.Next() {
-		err = subMenuItems.Scan(&subMenuItem.ID, &subMenuItem.Serial, &subMenuItem.Name, &subMenuItem.SubMenuID, &subMenuItem.Href, &subMenuItem.Weight, &subMenuItem.Enable)
+		err = subMenuItems.Scan(&subMenuItem.ID, &subMenuItem.Serial,
+			&subMenuItem.Name, &subMenuItem.SubMenuID, &subMenuItem.Href,
+			&subMenuItem.Weight, &subMenuItem.Enable)
 		subMenu = append(subMenu, subMenuItem)
 	}
 
@@ -78,7 +79,9 @@ func main() {
 	checkErr(err)
 
 	for primMenuItems.Next() {
-		err = primMenuItems.Scan(&primMenuItem.ID, &primMenuItem.Serial, &primMenuItem.Name, &primMenuItem.SubMenuID, &primMenuItem.Href, &primMenuItem.Weight, &primMenuItem.Enable)
+		err = primMenuItems.Scan(&primMenuItem.ID, &primMenuItem.Serial,
+			&primMenuItem.Name, &primMenuItem.SubMenuID, &primMenuItem.Href,
+			&primMenuItem.Weight, &primMenuItem.Enable)
 
 		mItems.MainMenuItems = primMenuItem
 		mItems.SubMenuItems = parsSubMenu(selMenu, primMenuItem.Serial)
